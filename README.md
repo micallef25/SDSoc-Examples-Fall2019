@@ -1,24 +1,32 @@
 # SDSoc-Examples-Fall2019
-Streaming Examples to help with the final project
 
-
-Putting it all together!
+Putting more pieces together!
 
 In Homework 6 you shold have learned about DMA transfers using async, and instantiating multiple resources at a top level
 
-So now you can do something like this!
+So now you can do something like this! Where we can process packets in hardware in parallel to achieve high throughput.
+
+In the below picture we see can achieve a throught put of 50mb/s with one application and 100mb/s with two.
 
 ![](img/2resources_top.png)
 
 In homework 7 you should have been exposed to streaming between two applications inside the FPGA.
 
-But what if we want something like this?
+You could be thinking to yourself I don't need to make a whole instance of all those applications to achieve 100mb/s I just need to add more of a certain application.
+
+So something like we see below.
 
 ![](img/2resources_Streaming.png)
 
 We want to identify our bottle necks at the source, thus utilizing less resources. We do not necessarily need a whole new pipeline. That could be costly on hardware!
-We just need another App2!
+We just need another piece of the puzzle.
 
-This code delves deep into how to do this. Please go through and read the comments and think of any questions that were asked. 
+This repo shows us how we can do that and shows some other techniques that may be helpful when implementing the project. 
 
-Come to OH or post on piazza with any questions that you may have.
+Your design may and will probably be different. But, this can help give ideas or inspire you to think of new ideas.
+
+I would suggest reading through the code examining the .cpp and .h files. There are questions that may give you ideas or inspire thoughts.
+
+Please Come to OH or post on piazza with any questions that you may have about this repo.
+
+Goodluck!

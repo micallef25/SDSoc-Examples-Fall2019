@@ -3,7 +3,8 @@
 
 #include "testbench.h"
 #include "sds_utils.h"
+#include "compute_hw.h"
 
-void application1_hw( const unsigned char in_buff[NUM_ELEMENTS], hls::stream<unsigned char> out_stream[NUM_INSTANCES],uint32_t length );
+void application1_hw( const unsigned char in_buff[NUM_ELEMENTS], hls::stream<unsigned short> out_stream[NUM_INSTANCES],uint32_t length );
 
 #endif

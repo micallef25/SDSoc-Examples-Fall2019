@@ -24,12 +24,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef SDS_UTILS_H_
 #define SDS_UTILS_H_
 #include <stdint.h>
-
+#include <hls_stream.h>
 
 #ifdef __SDSCC__
 #include "sds_lib.h"
 //#include <ap_int.h>
-#include <hls_stream.h>
 #endif
 
 // advanced precision data types are not compiling at this moment

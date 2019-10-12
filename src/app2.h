@@ -2,7 +2,8 @@
 #define _APP2_H_
 #include "testbench.h"
 #include "sds_utils.h"
+#include "compute_hw.h"
 
-void application2_hw( hls::stream<unsigned char> &in_stream, hls::stream<unsigned char> &out_stream, uint32_t length );
+void application2_hw( hls::stream<unsigned short> &in_stream, hls::stream<unsigned short> &out_stream, unsigned short done_bit );
 
 #endif
