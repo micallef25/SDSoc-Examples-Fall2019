@@ -3,6 +3,6 @@
 #include "testbench.h"
 #include "sds_utils.h"
 
-void application2_hw( hls::stream<uint8_t> &in_stream, hls::stream<uint8_t> &out_stream, uint32_t length );
+void application2_hw( hls::stream<unsigned char> &in_stream, hls::stream<unsigned char> &out_stream, uint32_t length );
 
 #endif

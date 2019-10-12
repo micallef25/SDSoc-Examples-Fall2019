@@ -8,7 +8,7 @@
 #include <sds_lib.h>
 #endif
 
-void create_data(char* data, uint32_t length)
+void create_data(unsigned char* data, uint32_t length)
 {
 	for(uint32_t i = 0; i < length; length++)
 	{
@@ -16,7 +16,7 @@ void create_data(char* data, uint32_t length)
 	}
 }
 
-int check_data( char* in, char* out, uint32_t length)
+int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 {
 	for( uint32_t i = 0; i < length; i++)
 	{
@@ -29,13 +29,13 @@ int check_data( char* in, char* out, uint32_t length)
 
 int main()
 {
-	char* input;
-	char* output;
+	unsigned char* input;
+	unsigned char* output;
 	//
-	input = (char*)sds_alloc( sizeof(char)* NUM_ELEMENTS );
+	input = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
 
 	//
-	output = (char*)sds_alloc( sizeof(char)* NUM_ELEMENTS );
+	output = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
 
 	//
 	create_data( input, NUM_ELEMENTS );

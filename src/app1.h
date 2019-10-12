@@ -4,10 +4,6 @@
 #include "testbench.h"
 #include "sds_utils.h"
 
-
-#pragma SDS data copy(in_buff[0:NUM_ELEMENTS])
-#pragma SDS data access_pattern(in_buff:SEQUENTIAL)
-#pragma SDS data mem_attribute(in_buff:PHYSICAL_CONTIGUOUS)
-void application1_hw( const char in_buff[NUM_ELEMENTS], hls::stream<char> &out_stream,uint32_t length );
+void application1_hw( const unsigned char in_buff[NUM_ELEMENTS], hls::stream<unsigned char> out_stream[NUM_INSTANCES],uint32_t length );
 
 #endif

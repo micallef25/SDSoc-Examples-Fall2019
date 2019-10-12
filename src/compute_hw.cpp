@@ -6,18 +6,33 @@
 #include "app3.h"
 #include <stdint.h>
 
-void compute_hw( const char input[NUM_ELEMENTS], char output[NUM_ELEMENTS], uint32_t length)
+// our top level function DMA is streamed in and out see header for declaration
+void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS], uint32_t length)
 {
-	static hls::stream<char> in_stream;
-	static hls::stream<char> Temp;
+	static hls::stream<unsigned char> in_stream[NUM_INSTANCES];
+	static hls::stream<unsigned char> Temp[NUM_INSTANCES];
 
-#pragma HLS STREAM variable=in_stream depth=2
-//#pragma HLS STREAM variable=in_stream[1] depth = 2;
-#pragma HLS STREAM variable=Temp depth=8
+// you should consider adjusting your depth to something appropriate for your application
+// if your application runs 10x slower think your queue needs to be 10x bigger
+#pragma HLS STREAM variable=in_stream[0] depth=2
+#pragma HLS STREAM variable=in_stream[1] depth=2
+#pragma HLS STREAM variable=Temp[0] depth=8
+#pragma HLS STREAM variable=Temp[1] depth=8
 
+// consider why the data flow pragma may be useful we did this in homework 7
 #pragma HLS DATAFLOW
-	application1_hw(&input[0],Temp,length);
-	//application2_hw(in_stream,Temp,length);
+// scatter the data to app2 
+	application1_hw(&input[0],in_stream,length);
+
+// creates two resources with different streams
+// you can see the two distinct resources in debug/_sds/reports/sds_compute_hw.rpt
+// this report tells you your resource utilization. It may differ from what Vivado HLS tells you.
+#pragma SDS resource(1)
+	application2_hw(in_stream[0],Temp[0],length);
+#pragma SDS resource(2)
+	application2_hw(in_stream[1],Temp[1],length);
+
+// gather the data
 	application3_hw(Temp,&output[0],length);
 
 

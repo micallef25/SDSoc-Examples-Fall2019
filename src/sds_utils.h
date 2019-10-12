@@ -26,23 +26,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 
 
-//#include <ap_int.h>
-#include <hls_stream.h>
-
 #ifdef __SDSCC__
 #include "sds_lib.h"
+//#include <ap_int.h>
+#include <hls_stream.h>
 #endif
 
-
+// advanced precision data types are not compiling at this moment
+//https://forums.xilinx.com/t5/SDSoC-Environment-and-reVISION/quot-hls-half-h-quot-Error-no-member-named-in-namespace-std/td-p/810297
 //#define EMPTY 0xFFFF
 //typedef ap_uint<256> uint256_t;
 //typedef ap_uint<1> uint1_t;
 //typedef ap_uint<4> uint4_t;
 //typedef ap_uint<257> uint257_t;
 //typedef ap_uint<33> uint33_t;
-//typedef ap_uint<10> uint10_t;
-typedef unsigned short uint16_t;
-typedef unsigned char uint8_t;
+//typedef ap_uint<9> uint9_t;
+
 //
 //#define EOF_BITS 10
 //#define EOF_MASK (1 << (EOF_BITS-1))
