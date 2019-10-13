@@ -27,9 +27,10 @@ void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[N
 // creates two resources with different streams
 // you can see the two distinct resources in debug/_sds/reports/sds_compute_hw.rpt
 // this report tells you your resource utilization. It may differ from what Vivado HLS tells you.
-#pragma SDS resource(1)
+// you can use the resource pragma
+//#pragma SDS resource(3)
 	application2_hw(in_stream[0],mid_stream[0],END_TRANSFER_INSTANCE_1);
-#pragma SDS resource(2)
+//#pragma SDS resource(4)
 	application2_hw(in_stream[1],mid_stream[1],END_TRANSFER_INSTANCE_2);
 
 // gather the data

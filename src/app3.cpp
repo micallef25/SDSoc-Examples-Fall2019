@@ -28,12 +28,11 @@ void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsi
 		{
 			// write to application stream
 			out_buff[i] = (unsigned char)in_data;
+			// index to buffer write
+			i++;
 		}
 
 		// same concept as in app2.cpp
 		debug_ctr++;
-
-		// index to buffer write
-		i++;
 	}
 }

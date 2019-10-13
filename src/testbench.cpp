@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define NUM_PACKETS 8
+
 #ifdef __SDSCC__
 #include <sds_lib.h>
 #endif
@@ -12,9 +14,24 @@ void create_data(unsigned char* data, uint32_t length)
 {
 	for(uint32_t i = 0; i < length; i++)
 	{
-		data[i] = i;
+		data[i] = rand() % 255;
 	}
 }
+
+unsigned char* create_packet()
+{
+	//
+	unsigned char* input = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
+	if(input == NULL)
+	{
+		std::cout << "aborting " <<std::endl;
+		exit(1);
+	}
+	//
+	create_data( input, NUM_ELEMENTS );
+	return input;
+}
+
 
 int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 {
@@ -29,36 +46,62 @@ int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 
 int main()
 {
-	unsigned char* input;
-	unsigned char* output;
-
-#ifdef __SDSCC__
-	//
-	input = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
-
-	//
-	output = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
-#else
-	//
-	input = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS );
-
-	//
-	output = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS );
-#endif
-
-	if( input == NULL || output == NULL)
+	unsigned char* input[NUM_PACKETS];
+	unsigned char* output[NUM_PACKETS];
+	int pass = 0;
+	for(int i = 0; i < NUM_PACKETS; i++)
 	{
-		std::cout << "ERROR ALLOC" <<std::endl;
-		return 0;
+		output[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
+		if(output[i] == NULL)
+		{
+			std::cout << "aborting " <<std::endl;
+			return 1;
+		}
+		input[i] = create_packet();
 	}
-	//
-	create_data( input, NUM_ELEMENTS );
+
+	sds_utils::perf_counter hw_ctr;
+
+	hw_ctr.start();
 
 	//
-	compute_hw(&input[0],&output[0], NUM_ELEMENTS);
+	for(int i =0; i < 4; i++)
+	{
+#pragma SDS async(1);
+#pragma SDS resource(1);
+		compute_hw(input[i],output[i], NUM_ELEMENTS);
+#pragma SDS async(2);
+#pragma SDS resource(2);
+		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+	}
 
 	//
-	int pass = check_data( input,output,NUM_ELEMENTS );
+	for(int i =4; i < NUM_PACKETS; i++)
+	{
+#pragma SDS wait(1);
+#pragma SDS async(1);
+#pragma SDS resource(1);
+		compute_hw(input[i],output[i], NUM_ELEMENTS);
+#pragma SDS wait(2);
+#pragma SDS async(2);
+#pragma SDS resource(2);
+		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+	}
+
+	//
+	for(int i =4; i < NUM_PACKETS; i++)
+	{
+#pragma SDS wait(1);
+#pragma SDS wait(2);
+	}
+
+	hw_ctr.stop();
+
+	std::cout << "Average number of CPU cycles in hardware: " << hw_ctr.avg_cpu_cycles() << std::endl;
+
+	//
+	for(int i =0; i < NUM_PACKETS; i++)
+		pass |= check_data( input[i],output[i],NUM_ELEMENTS );
 
 #ifdef __SDSCC__
 	if(pass){
@@ -67,9 +110,11 @@ int main()
 	else{
 		std::cout << "TEST PASSED " << std::endl;
 	}
-
-	sds_free(output);
-	sds_free(input);
+	for(int i = 0; i < NUM_PACKETS; i++)
+	{
+		sds_free(output[i]);
+		sds_free(input[i]);
+	}
 #else
 	free(output);
 	free(input);
