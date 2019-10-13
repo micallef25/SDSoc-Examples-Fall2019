@@ -34,9 +34,9 @@ We just need another piece of the puzzle.
 
 Look, in this time frame we can verify that we have two application2's running concurrently
 
-![](img/midstream1.png)
+![](img/midstream1.PNG)
 
-![](img/midstream2.png)
+![](img/midstream2.PNG)
 
 # Resource output
 
@@ -44,15 +44,15 @@ In this file we can see that the resources are being accounted for. This file is
 
 Below we see we that it has built two separate application2's like we wanted.
 
-![](img/2app2s.png)
+![](img/2app2s.PNG)
 
 Below we see our utilization when we use the resource pragma to create two separate instances.
 
-![](img/2resourcestop.png)
+![](img/2resourcestop.PNG)
 
 Below we see our utilization when we do not. This can be our hint that we are on the right track.
 
-![](img/1resource_top.png)
+![](img/1resource_top.PNG)
 
 
 # Ending remarks
