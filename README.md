@@ -42,6 +42,14 @@ Please Come to OH or post on piazza with any questions that you may have about t
 
 Goodluck!
 
+
+# weird compiler Errors encountered
+
+Error : Fix
+
+No function body: changed all uint8_t and uint16_t to unsigned char or short. It looks like these typedefs 
+
+ignore 
 ALL RESOURCES
 Average number of CPU cycles in hardware: 939828
 TEST PASSED 
