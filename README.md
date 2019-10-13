@@ -49,6 +49,9 @@ Error : Fix
 
 No function body: changed all uint8_t and uint16_t to unsigned char or short. It looks like these typedefs 
 
+
+TODO add screenshots to prove multiple resources and dataflow is running concurrently inside. maybe emulation will help
+
 ignore 
 ALL RESOURCES
 Average number of CPU cycles in hardware: 939828
