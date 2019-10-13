@@ -77,12 +77,14 @@ int main()
 	//
 	for(int i =0; i < 4; i+=2)
 	{
+// we can verify if our resource pragma actually worked
+// in sds.rpt you ca nsee the resource utilization and compare it to a build that is not using it
 #pragma SDS async(1);
 #pragma SDS resource(1);
 		compute_hw(input[i],output[i], NUM_ELEMENTS);
-//#pragma SDS async(2);
-//#pragma SDS resource(2);
-//		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+#pragma SDS async(2);
+#pragma SDS resource(2);
+		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
 	}
 
 	//
@@ -92,17 +94,17 @@ int main()
 #pragma SDS async(1);
 #pragma SDS resource(1);
 		compute_hw(input[i],output[i], NUM_ELEMENTS);
-//#pragma SDS wait(2);
-//#pragma SDS async(2);
-//#pragma SDS resource(2);
-//		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+#pragma SDS wait(2);
+#pragma SDS async(2);
+#pragma SDS resource(2);
+		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
 	}
 
 	//
 	for(int i =0; i < 4; i+=2)
 	{
 #pragma SDS wait(1);
-//#pragma SDS wait(2);
+#pragma SDS wait(2);
 	}
 
 	hw_ctr.stop();
