@@ -4,7 +4,7 @@
 #include "testbench.h"
 #include "sds_utils.h"
 
-#define NUM_INSTANCES 1
+#define NUM_INSTANCES 2
 #define END_TRANSFER_INSTANCE_1 1 << 8
 #define END_TRANSFER_INSTANCE_2 2 << 8
 #define END_TRANSFER_ALL 3 << 8
