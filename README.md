@@ -87,5 +87,6 @@ NO RESOURCE IN FPGA
 same
 
 No resource shows same resource in utilazation. I am lead to believe that you may need anything extra
+backflow is not allowed in data flow region
 
 
