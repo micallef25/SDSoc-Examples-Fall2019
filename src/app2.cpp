@@ -11,7 +11,7 @@ void application2_hw( hls::stream<unsigned short> &in_stream, hls::stream<unsign
 		lookup_table[i] = i;
 	}
 	unsigned short done_flag = 0;
-	unsigned short write_data = 0;
+//	unsigned short write_data = 0;
 	unsigned short debug_ctr = 0;
 
 	// new pragma but what does it do? How is this helpful?

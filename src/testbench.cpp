@@ -3,28 +3,29 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <iostream>
 
-#define NUM_PACKETS 8
+#define NUM_PACKETS 4
 
 #ifdef __SDSCC__
 #include <sds_lib.h>
 #endif
 
-void create_data(unsigned char* data, uint32_t length)
+void create_data(unsigned short* data, uint32_t length)
 {
 	for(uint32_t i = 0; i < length; i++)
 	{
-		data[i] = rand() % 255;
+		data[i] = i;
 	}
 }
 
-unsigned char* create_packet()
+unsigned short* create_packet()
 {
 	//
 #ifdef __SDSCC__
-	unsigned char* input = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
+	unsigned short* input = (unsigned short*)sds_alloc( sizeof(unsigned short)* NUM_ELEMENTS );
 #else
-	unsigned char* input = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS );
+	unsigned short* input = (unsigned short*)malloc( sizeof(unsigned short)* NUM_ELEMENTS );
 #endif
 	if(input == NULL)
 	{
@@ -37,7 +38,7 @@ unsigned char* create_packet()
 }
 
 
-int check_data( unsigned char* in, unsigned char* out, uint32_t length)
+int check_data( unsigned short* in, unsigned short* out, uint32_t length)
 {
 	for( uint32_t i = 0; i < length; i++)
 	{
@@ -50,15 +51,15 @@ int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 
 int main()
 {
-	unsigned char* input[NUM_PACKETS];
-	unsigned char* output[NUM_PACKETS];
+	unsigned short* input[NUM_PACKETS];
+	unsigned short* output[NUM_PACKETS];
 	int pass = 0;
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
 #ifdef __SDSCC__
-		output[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
+		output[i] = (unsigned short*)sds_alloc( sizeof(unsigned short)* NUM_ELEMENTS );
 #else
-		output[i] = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS );
+		output[i] = (unsigned short*)malloc( sizeof(unsigned short)* NUM_ELEMENTS );
 #endif
 		if(output[i] == NULL)
 		{
@@ -70,41 +71,42 @@ int main()
 
 	sds_utils::perf_counter hw_ctr;
 
+	unsigned short* temp = input[NUM_PACKETS-1];
+	temp[NUM_ELEMENTS-1] = EOF_BIT; // EOF BIT
+
 	std::cout << "Starting test run"  << std::endl;
 
 	hw_ctr.start();
 
 	//
-	for(int i =0; i < 4; i+=2)
+	for(int i =0; i < 2; i++)
 	{
-// we can verify if our resource pragma actually worked
-// in sds.rpt you ca nsee the resource utilization and compare it to a build that is not using it
 #pragma SDS async(1);
 #pragma SDS resource(1);
 		compute_hw(input[i],output[i], NUM_ELEMENTS);
-#pragma SDS async(2);
-#pragma SDS resource(2);
-		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+//#pragma SDS async(2);
+//#pragma SDS resource(2);
+//		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
 	}
 
 	//
-	for(int i =4; i < NUM_PACKETS; i+=2)
+	for(int i =2; i < NUM_PACKETS; i++)
 	{
-#pragma SDS wait(1);
+//#pragma SDS wait(1);
 #pragma SDS async(1);
 #pragma SDS resource(1);
 		compute_hw(input[i],output[i], NUM_ELEMENTS);
-#pragma SDS wait(2);
-#pragma SDS async(2);
-#pragma SDS resource(2);
-		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+//#pragma SDS wait(2);
+//#pragma SDS async(2);
+//#pragma SDS resource(2);
+//		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
 	}
 
 	//
-	for(int i =0; i < 4; i+=2)
+	for(int i =0; i < NUM_PACKETS; i++)
 	{
 #pragma SDS wait(1);
-#pragma SDS wait(2);
+//#pragma SDS wait(2);
 	}
 
 	hw_ctr.stop();

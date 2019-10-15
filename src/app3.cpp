@@ -1,7 +1,7 @@
 #include "app3.h"
 
 
-void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsigned char out_buff[NUM_ELEMENTS], unsigned short done_bit )
+void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsigned short out_buff[NUM_ELEMENTS], unsigned short done_bit )
 {
 	unsigned char index = 0;
 	unsigned short in_data = 0;

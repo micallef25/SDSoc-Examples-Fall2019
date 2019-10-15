@@ -4,6 +4,7 @@
 #include "testbench.h"
 #include "sds_utils.h"
 
+#define EOF_BIT 1 << 10
 #define NUM_INSTANCES 2
 #define END_TRANSFER_INSTANCE_1 1 << 8
 #define END_TRANSFER_INSTANCE_2 2 << 8
@@ -16,6 +17,6 @@
 #pragma SDS data copy(input[0:NUM_ELEMENTS], output[0:NUM_ELEMENTS])
 #pragma SDS data mem_attribute( input:PHYSICAL_CONTIGUOUS, output:PHYSICAL_CONTIGUOUS )
 #pragma SDS data access_pattern( input:SEQUENTIAL, output:SEQUENTIAL )
-void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS], uint32_t length);
+void compute_hw( const unsigned short input[NUM_ELEMENTS], unsigned short output[NUM_ELEMENTS],uint32_t length);
 
 #endif

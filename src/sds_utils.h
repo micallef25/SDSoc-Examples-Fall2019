@@ -41,6 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //typedef ap_uint<33> uint33_t;
 //typedef ap_uint<9> uint9_t;
 
+
 //
 //#define EOF_BITS 10
 //#define EOF_MASK (1 << (EOF_BITS-1))
