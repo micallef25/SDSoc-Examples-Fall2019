@@ -9,8 +9,7 @@ void application1_hw( const unsigned short in_buff[NUM_ELEMENTS], hls::stream<un
 
 	// new pragma but what does it do? How is this helpful?
 	#pragma HLS LOOP_TRIPCOUNT min=256 max=256
-	//for( i = 0; i < length; i++)
-	while( in_buff[i] != EOF_BIT )
+	for( i = 0; i < length; i++)
 	{
 	//#pragma HLS pipeline II=1
 		// read from DMA input stream
@@ -23,9 +22,8 @@ void application1_hw( const unsigned short in_buff[NUM_ELEMENTS], hls::stream<un
 		index = (index == (NUM_INSTANCES-1) ) ? 0 : index+1;
 
 		// next buff read
-		i++;
+		//i++;
 	}
-
 	// signal to stop the system each instance gets its own bit
 	out_stream[0].write(END_TRANSFER_INSTANCE_1);
 	out_stream[1].write(END_TRANSFER_INSTANCE_2);

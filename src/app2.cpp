@@ -1,6 +1,5 @@
 #include "app2.h"
 
-
 void application2_hw( hls::stream<unsigned short> &in_stream, hls::stream<unsigned short> &out_stream,unsigned short done_bit )
 {
 	// use some resources to prove that two instances are actually created
@@ -11,14 +10,13 @@ void application2_hw( hls::stream<unsigned short> &in_stream, hls::stream<unsign
 		lookup_table[i] = i;
 	}
 	unsigned short done_flag = 0;
-//	unsigned short write_data = 0;
+	unsigned short write_data = 0;
 	unsigned short debug_ctr = 0;
 
 	// new pragma but what does it do? How is this helpful?
 	#pragma HLS LOOP_TRIPCOUNT min=128 max=128
 	while( done_flag != done_bit )
 	{
-//#pragma HLS pipeline II=1
 		// read from DMA stream
 		unsigned short in_data = in_stream.read();
 

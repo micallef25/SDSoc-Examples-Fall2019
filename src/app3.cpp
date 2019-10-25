@@ -7,7 +7,10 @@ void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsi
 	unsigned short in_data = 0;
 	unsigned short done_flag = 0;
 	unsigned short i =0;
-	unsigned short debug_ctr = 0;
+
+	// think of how static variables or static tables can help you build your LZW dictionary if a file is broken into many packets
+	//
+	static unsigned short debug_ctr = 0;
 
 	// new pragma but what does it do? How is this helpful?
 	#pragma HLS LOOP_TRIPCOUNT min=256 max=256
@@ -26,8 +29,10 @@ void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsi
 		// if actually data we will write it to the output buffer
 		if( (done_flag != END_TRANSFER_INSTANCE_1) && (done_flag != END_TRANSFER_INSTANCE_2) && (done_flag != done_bit) )
 		{
+			//in_data = (in_data == EOF_BIT) ? debug_ctr : in_data;
+
 			// write to application stream
-			out_buff[i] = (unsigned char)in_data;
+			out_buff[i] = in_data;
 			// index to buffer write
 			i++;
 		}
