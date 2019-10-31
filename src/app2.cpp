@@ -13,10 +13,10 @@ void application2_hw( hls::stream<unsigned short> &in_stream, hls::stream<unsign
 	unsigned short write_data = 0;
 	unsigned short debug_ctr = 0;
 
-	// new pragma but what does it do? How is this helpful?
-	#pragma HLS LOOP_TRIPCOUNT min=128 max=128
+	// new pragma but what does it do? How is this helpful?c
 	while( done_flag != done_bit )
 	{
+#pragma HLS LOOP_TRIPCOUNT min=128 max=128
 		// read from DMA stream
 		unsigned short in_data = in_stream.read();
 

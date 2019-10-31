@@ -27,8 +27,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <hls_stream.h>
 
 #ifdef __SDSCC__
+#include <ap_int.h>
 #include "sds_lib.h"
-//#include <ap_int.h>
 #endif
 
 // advanced precision data types are not compiling at this moment
@@ -40,7 +40,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //typedef ap_uint<257> uint257_t;
 //typedef ap_uint<33> uint33_t;
 //typedef ap_uint<9> uint9_t;
-
+//ap_uint<10> temp;
 
 //
 //#define EOF_BITS 10

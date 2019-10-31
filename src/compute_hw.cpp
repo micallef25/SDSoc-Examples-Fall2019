@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 // our top level function DMA is streamed in and out see header for declaration
-void compute_hw( const unsigned short input[NUM_ELEMENTS], unsigned short output[NUM_ELEMENTS],uint32_t length)
+void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS],uint32_t length)
 {
 	static hls::stream<unsigned short> in_stream[NUM_INSTANCES];
 	static hls::stream<unsigned short> mid_stream[NUM_INSTANCES];
@@ -33,6 +33,5 @@ void compute_hw( const unsigned short input[NUM_ELEMENTS], unsigned short output
 
 // gather the data
 	application3_hw(mid_stream,&output[0],END_TRANSFER_ALL);
-
 
 }

@@ -1,7 +1,7 @@
 #include "app3.h"
 
 
-void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsigned short out_buff[NUM_ELEMENTS], unsigned short done_bit )
+void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsigned char out_buff[NUM_ELEMENTS], unsigned short done_bit )
 {
 	unsigned char index = 0;
 	unsigned short in_data = 0;
@@ -13,10 +13,10 @@ void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsi
 	static unsigned short debug_ctr = 0;
 
 	// new pragma but what does it do? How is this helpful?
-	#pragma HLS LOOP_TRIPCOUNT min=256 max=256
 	while( done_flag != done_bit  )
 	{
-	//#pragma HLS pipeline II=1
+//	#pragma HLS LOOP_TRIPCOUNT min=256 max=256
+//	#pragma HLS pipeline II=1
 		// read from DMA stream
 		in_data = in_stream[index].read();
 
