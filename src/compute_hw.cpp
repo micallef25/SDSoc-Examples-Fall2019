@@ -9,8 +9,8 @@
 // our top level function DMA is streamed in and out see header for declaration
 void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS],uint32_t length)
 {
-	static hls::stream<unsigned short> in_stream[NUM_INSTANCES];
-	static hls::stream<unsigned short> mid_stream[NUM_INSTANCES];
+	hls::stream<unsigned short> in_stream[NUM_INSTANCES];
+	hls::stream<unsigned short> mid_stream[NUM_INSTANCES];
 
 // you should consider adjusting your depth to something appropriate for your application
 // if your application runs 10x slower think your queue needs to be 10x bigger

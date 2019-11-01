@@ -69,32 +69,24 @@ int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 int main()
 {
 	unsigned char* input[NUM_PACKETS];
-	unsigned char* output[NUM_PACKETS];
 	int offset = 0;
 	int writer = 0;
 	int done = 0;
-	int reader = 0;
 	int length = 0;
 	int count = 0;
 	ESE532_Server server;
 
-	unsigned char* file = (unsigned char*)malloc( sizeof(unsigned char)* 70000000 );
+	unsigned char* file = (unsigned char*)sds_alloc( sizeof(unsigned char)* 70000000 );
 
-	printf("Hi Eric\n");
+	if(file == NULL)
+	{
+		printf("help\n");
+	}
+	printf("Hi Eric!\n");
 
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
-#ifdef __SDSCC__
-		//output[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
-		input[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
-#else
-		output[i] = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
-#endif
-//		if(output[i] == NULL)
-//		{
-//			std::cout << "aborting " <<std::endl;
-//			return 1;
-//		}
+		input[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* (NUM_ELEMENTS + HEADER) );
 		if(input[i] == NULL)
 		{
 			std::cout << "aborting " <<std::endl;
@@ -117,7 +109,7 @@ int main()
 	{
 		server.get_packet(input[i]);
 		count++;
-		printf("packet: %d\n",count);
+		//printf("packet: %d\n",count);
 
 		// get packet
 		unsigned char* buffer = input[i];
@@ -126,24 +118,21 @@ int main()
 		done = buffer[1] & DONE_BIT_L;
 		length = buffer[0] | (buffer[1] << 8);
 		length &= ~DONE_BIT_H;
+		//printf("length: %d offset %d\n",length,offset);
 
-//#pragma SDS async(1);
-//#pragma SDS resource(1);
+#pragma SDS async(1);
 		compute_hw(&buffer[HEADER],&file[offset], length);
+
+		//
 		offset+= length;
 	}
 
 	writer = pipe_depth;
-	reader = pipe_depth;
 
 	//last message
 	while(!done)
 	{
 		// reset ring buffer
-		if(reader == NUM_PACKETS)
-		{
-			reader = 0;
-		}
 		if(writer == NUM_PACKETS)
 		{
 			writer = 0;
@@ -152,7 +141,7 @@ int main()
 
 		server.get_packet(input[writer]);
 		count++;
-		printf("packet while: %d\n",count);
+		//printf("packet while: %d\n",count);
 
 
 		// get packet
@@ -162,73 +151,53 @@ int main()
 		done = buffer[1] & DONE_BIT_L;
 		length = buffer[0] | (buffer[1] << 8);
 		length &= ~DONE_BIT_H;
+		//printf("length: %d\n",length);
 
-//#pragma SDS async(1);
-//#pragma SDS resource(1);
+#pragma SDS wait(1);
+#pragma SDS async(1);
 		compute_hw(&buffer[HEADER],&file[offset], length);
 
 		//
 		offset+= length;
-		writer+=1;
-		reader+=1;
+		writer++;
 	}
 
-	int temp_reader = reader;
-
+	printf("Done!\n");
 	//
-//	for(int k = temp_reader ; k < temp_reader + pipe_depth; k+=1)
-//	{
-//		if(reader == NUM_PACKETS)
-//		{
-//			reader = 0;
-//		}
-//#pragma SDS wait(1);
-//		unsigned char* buffer = output[reader];
-//
-//		printf("reader %d offset %d \n",reader,offset);
-//
-//		//
-//		done = buffer[1] & DONE_BIT_L;
-//		length = buffer[0] | (buffer[1] << 8);
-//		length &= ~DONE_BIT_H;
-//
-//		//
-//		memcpy(&file[offset],&buffer[HEADER],length);
-//
-//		//
-//		offset+= length;
-//
-//		//
-//		reader++;
-//	}
+	for(int i =0; i < pipe_depth; i++)
+	{
+#pragma SDS wait(1);
+	}
 
 #ifdef __SDSCC__
 	hw_ctr.stop();
 
-	std::cout << "Bytes processed: " << NUM_PACKETS * NUM_ELEMENTS * sizeof(short) << " Average number of CPU cycles in hardware: " << hw_ctr.avg_cpu_cycles() << std::endl;
+	std::cout << "Bytes processed: " << offset * sizeof(char) << " Average number of CPU cycles in hardware: " << hw_ctr.avg_cpu_cycles() << std::endl;
 #endif
 	//
-	int outfd = open("compress.dat", O_CREAT);
-
+	int outfd = open("p.dat", O_CREAT | O_WRONLY);
+	if(outfd < 0)
+		perror("opening");
 	//
-	int bytes_written = write(outfd,file,offset);
+	int bytes_written = write(outfd,&file[0],offset);
 
 	printf("write file with %d\n",bytes_written);
+	if(bytes_written < 0)
+		perror("writing");
 
+	close(outfd);
 
 #ifdef __SDSCC__
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
-		//sds_free(output[i]);
 		sds_free(input[i]);
 	}
 #else
 	for(int i = 0; i < NUM_PACKETS; i++)
-		{
-			sds_free(output[i]);
-			sds_free(input[i]);
-		}
+	{
+		sds_free(input[i]);
+	}
 #endif
-	free(file);
+	sds_free(file);
 	return 0;
 }
