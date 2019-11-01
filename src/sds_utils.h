@@ -27,7 +27,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <hls_stream.h>
 
 #ifdef __SDSCC__
-#include <ap_int.h>
+//#include <ap_int.h>
 #include "sds_lib.h"
 #endif
 
