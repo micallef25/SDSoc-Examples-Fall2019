@@ -85,16 +85,16 @@ int main()
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
 #ifdef __SDSCC__
-		output[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
+		//output[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
 		input[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
 #else
 		output[i] = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS + HEADER );
 #endif
-		if(output[i] == NULL)
-		{
-			std::cout << "aborting " <<std::endl;
-			return 1;
-		}
+//		if(output[i] == NULL)
+//		{
+//			std::cout << "aborting " <<std::endl;
+//			return 1;
+//		}
 		if(input[i] == NULL)
 		{
 			std::cout << "aborting " <<std::endl;
@@ -118,24 +118,23 @@ int main()
 		server.get_packet(input[i]);
 		count++;
 		printf("packet: %d\n",count);
-//#pragma SDS async(1);
-//#pragma SDS resource(1);
-		compute_hw(input[i],output[i], NUM_ELEMENTS);
 
 		// get packet
-		unsigned char* buffer = output[i];
+		unsigned char* buffer = input[i];
 
 		// decode
 		done = buffer[1] & DONE_BIT_L;
 		length = buffer[0] | (buffer[1] << 8);
 		length &= ~DONE_BIT_H;
 
-		// append
-		memcpy(&file[offset],&buffer[HEADER],length);
+//#pragma SDS async(1);
+//#pragma SDS resource(1);
+		compute_hw(&buffer[HEADER],&file[offset], length);
 		offset+= length;
 	}
 
-	//writer = pipe_depth;
+	writer = pipe_depth;
+	reader = pipe_depth;
 
 	//last message
 	while(!done)
@@ -150,28 +149,23 @@ int main()
 			writer = 0;
 		}
 
-		server.get_packet(input[writer]);
 
+		server.get_packet(input[writer]);
 		count++;
 		printf("packet while: %d\n",count);
 
-//#pragma SDS wait(1);
-//#pragma SDS async(1);
-//#pragma SDS resource(1);
-		compute_hw(input[writer],output[writer], NUM_ELEMENTS);
 
-		//extract
-		unsigned char* buffer = output[reader];
-
-		printf("write %d reader %d offset %d \n",writer,reader,offset);
+		// get packet
+		unsigned char* buffer = input[writer];
 
 		// decode
 		done = buffer[1] & DONE_BIT_L;
 		length = buffer[0] | (buffer[1] << 8);
 		length &= ~DONE_BIT_H;
 
-		// append
-		memcpy(&file[offset],&buffer[HEADER],length);
+//#pragma SDS async(1);
+//#pragma SDS resource(1);
+		compute_hw(&buffer[HEADER],&file[offset], length);
 
 		//
 		offset+= length;
@@ -225,7 +219,7 @@ int main()
 #ifdef __SDSCC__
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
-		sds_free(output[i]);
+		//sds_free(output[i]);
 		sds_free(input[i]);
 	}
 #else
