@@ -89,6 +89,7 @@ int main()
 
 #endif
 	// 1 resource is about 1.5gbps 2 resources is about 3gbps
+	// wind up the pipeline
 	for(int i =0; i < pipe_depth; i+=1)
 	{
 		server.get_packet(input[i]);
@@ -112,7 +113,7 @@ int main()
 	hw_ctr.start();
 	writer = pipe_depth;
 
-	//last message
+	//send until we get the last message
 	while(!done)
 	{
 		// reset ring buffer
@@ -143,7 +144,7 @@ int main()
 		writer++;
 	}
 
-	//
+	// flush pipeline
 	for(int i =0; i < pipe_depth; i++)
 	{
 #pragma SDS wait(1);
