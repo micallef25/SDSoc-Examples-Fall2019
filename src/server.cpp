@@ -144,18 +144,23 @@ int ESE532_Server::setup_server()
 	Check_error(f_mount(&FS, "0:/", 0) != FR_OK, "Could not mount SD-card");
 
 	printf("setting up sever...\n");
+	// read data from file
 	int bytes_read = Load_data(input_data);
-
+        
+	// reconcile how to break up the file
 	int loops = bytes_read / CHUNKSIZE;
 	int remainder = bytes_read % CHUNKSIZE;
 	int n;
+	
 	table_size = loops;
 	// account for remainder
 	if(remainder)
 	{
 		table_size++;
 	}
-
+        
+	
+	// make our pointer table
 	table = (unsigned char**)sds_alloc( sizeof(unsigned char*) * table_size );
 	printf("table constructed of %d packets and %d bytes \n",table_size, bytes_read);
 	if(table == NULL)
@@ -266,6 +271,7 @@ int ESE532_Server::setup_server()
 
 int ESE532_Server::get_packet(unsigned char* buffer)
 {
+	// get next packet and copy into passed in buffer
 	memcpy(buffer,table[packet_counter],(CHUNKSIZE + HEADER));
 	packet_counter++;
 	return (CHUNKSIZE + HEADER);
