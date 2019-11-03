@@ -3,14 +3,23 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include "server.h"
+#include <unistd.h>
+#include <fcntl.h>
 
 #define NUM_PACKETS 8
+#define pipe_depth 4
+#define DONE_BIT_L (1 << 7)
+#define DONE_BIT_H (1 << 15)
 
 #ifdef __SDSCC__
 #include <sds_lib.h>
 #endif
 
-void create_data(unsigned char* data, uint32_t length)
+
+void create_data(unsigned short* data, uint32_t length)
 {
 	for(uint32_t i = 0; i < length; i++)
 	{
@@ -18,22 +27,12 @@ void create_data(unsigned char* data, uint32_t length)
 	}
 }
 
-unsigned char* create_packet()
+void append_data( unsigned char* data, unsigned char* to_append, uint32_t length )
 {
-	//
-#ifdef __SDSCC__
-	unsigned char* input = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
-#else
-	unsigned char* input = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS );
-#endif
-	if(input == NULL)
+	for(uint32_t i = 0; i < length; i++)
 	{
-		std::cout << "aborting " <<std::endl;
-		exit(1);
+		to_append[i] = data[i];
 	}
-	//
-	create_data( input, NUM_ELEMENTS );
-	return input;
 }
 
 
@@ -41,8 +40,10 @@ int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 {
 	for( uint32_t i = 0; i < length; i++)
 	{
-		if(in[i] != out[i])
+		if(in[i] != out[i]){
+		std::cout << "test failed index " << i << std::endl;
 			return 1;
+		}
 	}
 	return 0;
 }
@@ -51,88 +52,140 @@ int check_data( unsigned char* in, unsigned char* out, uint32_t length)
 int main()
 {
 	unsigned char* input[NUM_PACKETS];
-	unsigned char* output[NUM_PACKETS];
-	int pass = 0;
+	int offset = 0;
+	int writer = 0;
+	int done = 0;
+	int length = 0;
+	int count = 0;
+	ESE532_Server server;
+
+	// allocate alot of space for vmlinuz.tar
+	unsigned char* file = (unsigned char*)sds_alloc( sizeof(unsigned char)* 29000 );
+	if(file == NULL)
+	{
+		printf("help\n");
+		exit(1);
+	}
+	printf("Hi Eric!\n");
+
+	// ring buffer of packets
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
-#ifdef __SDSCC__
-		output[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* NUM_ELEMENTS );
-#else
-		output[i] = (unsigned char*)malloc( sizeof(unsigned char)* NUM_ELEMENTS );
-#endif
-		if(output[i] == NULL)
+		input[i] = (unsigned char*)sds_alloc( sizeof(unsigned char)* (NUM_ELEMENTS + HEADER) );
+		if(input[i] == NULL)
 		{
 			std::cout << "aborting " <<std::endl;
 			return 1;
 		}
-		input[i] = create_packet();
 	}
 
+	//
+	server.setup_server();
+
+#ifdef __SDSCC__
 	sds_utils::perf_counter hw_ctr;
 
 	std::cout << "Starting test run"  << std::endl;
 
+#endif
+	// 1 resource is about 1.5gbps 2 resources is about 3gbps
+	for(int i =0; i < pipe_depth; i+=1)
+	{
+		server.get_packet(input[i]);
+		count++;
+
+		// get packet
+		unsigned char* buffer = input[i];
+
+		// decode
+		done = buffer[1] & DONE_BIT_L;
+		length = buffer[0] | (buffer[1] << 8);
+		length &= ~DONE_BIT_H;
+		std::cout << "Length:"  << length << std::endl;
+
+#pragma SDS async(1);
+		compute_hw(&buffer[HEADER],&file[offset], length);
+
+		//
+		offset+= length;
+	}
 	hw_ctr.start();
+	writer = pipe_depth;
 
-	//
-	for(int i =0; i < 4; i+=2)
+	//last message
+	while(!done)
 	{
-// we can verify if our resource pragma actually worked
-// in sds.rpt you ca nsee the resource utilization and compare it to a build that is not using it
-#pragma SDS async(1);
-#pragma SDS resource(1);
-		compute_hw(input[i],output[i], NUM_ELEMENTS);
-#pragma SDS async(2);
-#pragma SDS resource(2);
-		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
-	}
+		// reset ring buffer
+		if(writer == NUM_PACKETS)
+		{
+			writer = 0;
+		}
 
-	//
-	for(int i =4; i < NUM_PACKETS; i+=2)
-	{
+		server.get_packet(input[writer]);
+		count++;
+
+		// get packet
+		unsigned char* buffer = input[writer];
+
+		// decode
+		done = buffer[1] & DONE_BIT_L;
+		length = buffer[0] | (buffer[1] << 8);
+		length &= ~DONE_BIT_H;
+		std::cout << "Length:"  << length << std::endl;
+
+
 #pragma SDS wait(1);
 #pragma SDS async(1);
-#pragma SDS resource(1);
-		compute_hw(input[i],output[i], NUM_ELEMENTS);
-#pragma SDS wait(2);
-#pragma SDS async(2);
-#pragma SDS resource(2);
-		compute_hw(input[i+1],output[i+1], NUM_ELEMENTS);
+		compute_hw(&buffer[HEADER],&file[offset], length);
+
+		//
+		offset+= length;
+		writer++;
 	}
 
 	//
-	for(int i =0; i < 4; i+=2)
+	for(int i =0; i < pipe_depth; i++)
 	{
 #pragma SDS wait(1);
-#pragma SDS wait(2);
 	}
-
-	hw_ctr.stop();
-
-	std::cout << "Average number of CPU cycles in hardware: " << hw_ctr.avg_cpu_cycles() << std::endl;
-
-	//
-	for(int i =0; i < NUM_PACKETS; i++)
-		pass |= check_data( input[i],output[i],NUM_ELEMENTS );
 
 #ifdef __SDSCC__
-	if(pass){
-		std::cout << "TEST FAILED " << std::endl;
+	hw_ctr.stop();
+
+	std::cout << "Bytes processed: " << offset * sizeof(char) << " Average number of CPU cycles in hardware: " << hw_ctr.avg_cpu_cycles() << std::endl;
+#endif
+
+	std::cout << "offset: " << offset << std::endl;
+
+	int fail = check_data(file,server.input_data,offset);
+
+	if(fail)
+	{
+		printf("test failed \n");
 	}
-	else{
-		std::cout << "TEST PASSED " << std::endl;
+	else
+	{
+		printf("test passed!!\n");
 	}
+
+
+#ifdef __SDSCC__
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
-		sds_free(output[i]);
 		sds_free(input[i]);
 	}
 #else
 	for(int i = 0; i < NUM_PACKETS; i++)
-		{
-			sds_free(output[i]);
-			sds_free(input[i]);
-		}
+	{
+		sds_free(input[i]);
+	}
 #endif
+	sds_free(file);
+	for(int i = 0; i < server.table_size; i++)
+	{
+		sds_free(server.table[i]);
+	}
+	sds_free(server.table);
+	sds_free(server.input_data);
 	return 0;
 }

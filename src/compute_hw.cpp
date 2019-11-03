@@ -7,10 +7,10 @@
 #include <stdint.h>
 
 // our top level function DMA is streamed in and out see header for declaration
-void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS], uint32_t length)
+void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS],uint32_t length)
 {
-	static hls::stream<unsigned short> in_stream[NUM_INSTANCES];
-	static hls::stream<unsigned short> mid_stream[NUM_INSTANCES];
+	hls::stream<unsigned short> in_stream[NUM_INSTANCES];
+	hls::stream<unsigned short> mid_stream[NUM_INSTANCES];
 
 // you should consider adjusting your depth to something appropriate for your application
 // if your application runs 10x slower think your queue needs to be 10x bigger
@@ -27,11 +27,11 @@ void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[N
 // creates two resources with different streams
 // you can see the two distinct resources in debug/_sds/reports/sds_compute_hw.rpt
 // this report tells you your resource utilization. It may differ from what Vivado HLS tells you.
+// you dont need the resource pragma/
 	application2_hw(in_stream[0],mid_stream[0],END_TRANSFER_INSTANCE_1);
 	application2_hw(in_stream[1],mid_stream[1],END_TRANSFER_INSTANCE_2);
 
 // gather the data
 	application3_hw(mid_stream,&output[0],END_TRANSFER_ALL);
-
 
 }
