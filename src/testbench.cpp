@@ -118,6 +118,7 @@ int main()
 		done = buffer[1] & DONE_BIT_L;
 		length = buffer[0] | (buffer[1] << 8);
 		length &= ~DONE_BIT_H;
+		// printing takes time so be weary of transfer rate
 		//printf("length: %d offset %d\n",length,offset);
 
 #pragma SDS async(1);
@@ -162,8 +163,8 @@ int main()
 		writer++;
 	}
 
-	printf("Done!\n");
-	//
+
+	// flush the pipe
 	for(int i =0; i < pipe_depth; i++)
 	{
 #pragma SDS wait(1);
@@ -174,7 +175,7 @@ int main()
 
 	std::cout << "Bytes processed: " << offset * sizeof(char) << " Average number of CPU cycles in hardware: " << hw_ctr.avg_cpu_cycles() << std::endl;
 #endif
-	//
+	// write file to root and you can use diff tool on board
 	int outfd = open("p.dat", O_CREAT | O_WRONLY);
 	if(outfd < 0)
 		perror("opening");
@@ -187,17 +188,11 @@ int main()
 
 	close(outfd);
 
-#ifdef __SDSCC__
 	for(int i = 0; i < NUM_PACKETS; i++)
 	{
 		sds_free(input[i]);
 	}
-#else
-	for(int i = 0; i < NUM_PACKETS; i++)
-	{
-		sds_free(input[i]);
-	}
-#endif
+
 	sds_free(file);
 	return 0;
 }
