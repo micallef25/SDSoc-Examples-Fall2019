@@ -16,6 +16,7 @@
 
 #ifdef __SDSCC__
 #include <sds_lib.h>
+#include "sds_utils.h"
 #endif
 
 void create_data(unsigned short* data, uint32_t length)
