@@ -7,6 +7,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#define CHUNKSIZE 4096 // Tuneable. must match the transmitter side
+#define HEADER 2
+
 class ESE532_Server{
 public:
 
