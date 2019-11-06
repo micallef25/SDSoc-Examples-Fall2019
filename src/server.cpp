@@ -11,7 +11,7 @@
 #include "server.h"
 
 
-#define PORT	 8080
+#define PORT	 8091
 #define CHUNKSIZE 4096 // Tuneable. must match the transmitter side
 #define HEADER 2
 
