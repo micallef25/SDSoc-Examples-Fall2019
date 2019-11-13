@@ -54,6 +54,15 @@ Below we see our utilization when we do not. This can be our hint that we are on
 
 ![](img/1resource_top.png)
 
+# Binding threads
+
+you will see in the picture below that our core utilization for 2 and 3 is at 100%. 
+In a test example I ran I created two worker threads and bound one to core 2 and one to core 3. The functions they entered were simply
+while(1) loops so we could see processor utilization. 
+
+![](img/setaffinity.PNG)
+
+
 
 # Ending remarks
 
@@ -68,24 +77,12 @@ Please Come to OH or post on piazza with any questions that you may have about t
 Goodluck!
 
 
-# weird compiler Errors encountered
+# Errors encountered
 
-Error : Fix
+Child threads can not send data using zero copy pragma. But DMA channels were verified on child threads as well as on separate cores.
 
-No function body: changed all uint8_t and uint16_t to unsigned char or short. It looks like these typedefs 
+// wide memory data sending not an error but a performance bonus to look into.
+https://github.com/Xilinx/SDSoC_Examples/blob/master/cpp/getting_started/wide_memory_rw/src/main.cpp
 
-
-TODO add screenshots to prove multiple resources and dataflow is running concurrently inside. maybe emulation will help
-
-ignore 
-ALL RESOURCES
-Average number of CPU cycles in hardware: 939828
-TEST PASSED 
-
-
-NO RESOURCE IN FPGA
-same
-
-No resource shows same resource in utilazation. I am lead to believe that you may need anything extra
 
 

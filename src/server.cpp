@@ -12,11 +12,11 @@
 
 
 #define PORT	 8091
-#define CHUNKSIZE 4096 // Tuneable. must match the transmitter side
+#define CHUNKSIZE 8192 // Tuneable. must match the transmitter side
 #define HEADER 2
 
 // basic
-int ESE532_Server::setup_server()
+int ESE532_Server::setup_server(int avg_chunksize)
 {
 
 	printf("setting up sever...\n");
@@ -55,6 +55,9 @@ int ESE532_Server::setup_server()
 	//
 	server_len = sizeof(servaddr);
 
+	//
+	chunksize = avg_chunksize;
+
 	printf("server setup complete!\n");
 
 	return 0;
@@ -62,7 +65,7 @@ int ESE532_Server::setup_server()
 
 int ESE532_Server::get_packet(unsigned char* buffer)
 {
-	int bytes_read = recvfrom(sockfd, (void *)buffer, CHUNKSIZE+HEADER,0, ( struct sockaddr *) &servaddr,	&server_len);
+	int bytes_read = recvfrom(sockfd, (void *)buffer, chunksize+HEADER,0, ( struct sockaddr *) &servaddr,	&server_len);
 	packets_read++;
 	// crash
 	if( bytes_read < 0 )
@@ -73,5 +76,3 @@ int ESE532_Server::get_packet(unsigned char* buffer)
 
 	return bytes_read;
 }
-
-

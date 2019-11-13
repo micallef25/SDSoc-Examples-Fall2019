@@ -6,7 +6,7 @@ void application3_hw( hls::stream<unsigned short> in_stream[NUM_INSTANCES], unsi
 	unsigned char index = 0;
 	unsigned short in_data = 0;
 	unsigned short done_flag = 0;
-	unsigned short i =0;
+	static unsigned short i =0;
 
 	// think of how static variables or static tables can help you build your LZW dictionary if a file is broken into many packets
 	//

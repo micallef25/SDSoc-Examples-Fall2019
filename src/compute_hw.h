@@ -12,7 +12,7 @@
 // look here: https://www.xilinx.com/html_docs/xilinx2019_1/sdsoc_doc/sds-pragmas-nmc1504034362475.html#dzz1504034363418
 // we looked at data motion reports in homework 6 what did you observe or notice?
 #pragma SDS data copy(input[0:length], output[0:length])
-#pragma SDS data mem_attribute( input:PHYSICAL_CONTIGUOUS, output:PHYSICAL_CONTIGUOUS )
+#pragma SDS data mem_attribute( input:PHYSICAL_CONTIGUOUS , output:PHYSICAL_CONTIGUOUS  )
 #pragma SDS data access_pattern( input:SEQUENTIAL, output:SEQUENTIAL )
 void compute_hw( const unsigned char input[NUM_ELEMENTS], unsigned char output[NUM_ELEMENTS],unsigned int length);
 

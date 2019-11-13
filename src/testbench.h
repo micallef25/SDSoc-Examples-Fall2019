@@ -1,6 +1,8 @@
 #ifndef _TESTBENCH_H_
 #define _TESTBENCH_H_
 
-#define NUM_ELEMENTS (4096+2)
+// max number of elements we can get from ethernet
+#define NUM_ELEMENTS 16384
+#define HEADER 2
 
 #endif
